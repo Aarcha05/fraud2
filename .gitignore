@@ -1,0 +1,6 @@
+backend/creditcard.csv
+__pycache__/
+*.pyc
+.env
+*.env
+.vscode/
