@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fraud Detection – FraudShield</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --accent: #2563eb;
+            --text: #1a1a2e;
+            --muted: #8888a8;
+            --danger: #e53e6d;
+            --success: #059669;
+        }
+
+        body {
+            font-family: -apple-system, 'Helvetica Neue', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #dce8ff 0%, #ece0ff 45%, #fce8f3 100%);
+            color: var(--text);
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .orb-1 { width: 500px; height: 500px; background: #aac8ff; top: -150px; left: -100px; }
+        .orb-2 { width: 420px; height: 420px; background: #d4aaff; bottom: -120px; right: -80px; }
+        .orb-3 { width: 300px; height: 300px; background: #ffc6e8; top: 45%; left: 65%; transform: translate(-50%,-50%); }
+
+        nav {
+            position: sticky; top: 0;
+            background: rgba(255,255,255,0.55);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-bottom: 1px solid rgba(255,255,255,0.8);
+            padding: 0 32px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            box-shadow: 0 1px 20px rgba(100,120,200,0.08);
+        }
+
+        .nav-logo {
+            display: flex; align-items: center; gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 32px; height: 32px;
+            background: linear-gradient(145deg, #fff, #e4eeff);
+            border: 1px solid rgba(255,255,255,0.9);
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 3px 10px rgba(80,110,230,0.12);
+        }
+
+        .nav-logo span {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.4px;
+        }
+
+        .nav-logout {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.84rem;
+            font-weight: 500;
+            padding: 7px 16px;
+            border: 1px solid rgba(180,185,220,0.5);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.45);
+            transition: all 0.2s;
+        }
+
+        .nav-logout:hover {
+            color: var(--danger);
+            border-color: rgba(229,62,109,0.35);
+            background: rgba(229,62,109,0.05);
+        }
+
+        .main {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 44px 24px 80px;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 0.5s ease both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-header { margin-bottom: 32px; }
+
+        .page-header h2 {
+            font-size: 2.1rem;
+            font-weight: 700;
+            letter-spacing: -0.8px;
+            color: var(--text);
+        }
+
+        .page-header h2 span {
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-header p {
+            color: var(--muted);
+            margin-top: 6px;
+            font-size: 0.92rem;
+        }
+
+        .glass-card {
+            background: rgba(255,255,255,0.55);
+            backdrop-filter: blur(28px) saturate(180%);
+            -webkit-backdrop-filter: blur(28px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.85);
+            border-radius: 22px;
+            padding: 28px 30px;
+            margin-bottom: 18px;
+            box-shadow: 0 6px 28px rgba(100,120,220,0.08), 0 1px 0 rgba(255,255,255,0.9) inset;
+        }
+
+        .section-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.9px;
+            color: var(--muted);
+            margin-bottom: 18px;
+        }
+
+        .field { margin-bottom: 14px; }
+
+        label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--muted);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 11px 14px;
+            background: rgba(255,255,255,0.6);
+            border: 1px solid rgba(180,185,230,0.55);
+            border-radius: 11px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input[type="number"]::placeholder { color: #c0c0d8; }
+
+        input[type="number"]:focus {
+            border-color: rgba(37,99,235,0.4);
+            background: rgba(255,255,255,0.85);
+            box-shadow: 0 0 0 4px rgba(37,99,235,0.07);
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .vgrid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .vgrid { grid-template-columns: repeat(2, 1fr); }
+            .two-col { grid-template-columns: 1fr; }
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(160deg, #4f8eff, #2563eb);
+            color: white;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 22px rgba(37,99,235,0.28), 0 1px 0 rgba(255,255,255,0.18) inset;
+            transition: transform 0.15s, box-shadow 0.15s;
+            letter-spacing: -0.1px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(37,99,235,0.36);
+        }
+
+        .submit-btn:active { transform: translateY(0); }
+
+        #result {
+            margin-top: 18px;
+            padding: 20px 24px;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        #result.fraud {
+            background: rgba(229,62,109,0.1);
+            border: 1px solid rgba(229,62,109,0.28);
+            color: var(--danger);
+        }
+
+        #result.safe {
+            background: rgba(5,150,105,0.08);
+            border: 1px solid rgba(5,150,105,0.25);
+            color: var(--success);
+        }
+    </style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<nav>
+    <a class="nav-logo" href="/dashboard">
+        <div class="logo-icon">🛡️</div>
+        <span>FraudShield</span>
+    </a>
+    <a class="nav-logout" href="/login">Log out</a>
+</nav>
+
+<div class="main">
+    <div class="page-header">
+        <h2>Fraud <span>Detection</span></h2>
+        <p>Enter transaction details below to check for fraudulent activity.</p>
+    </div>
+
+    <form id="fraudForm">
+        <div class="glass-card">
+            <p class="section-label">Transaction Details</p>
+            <div class="two-col">
+                <div class="field">
+                    <label for="Time">Time</label>
+                    <input type="number" step="any" placeholder="0.00" id="Time" required>
+                </div>
+                <div class="field">
+                    <label for="Amount">Amount ($)</label>
+                    <input type="number" step="any" placeholder="0.00" id="Amount" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <p class="section-label">PCA Features (V1 – V28)</p>
+            <div class="vgrid">
+                <div class="field"><label>V1</label><input type="number" step="any" placeholder="V1" id="V1"></div>
+                <div class="field"><label>V2</label><input type="number" step="any" placeholder="V2" id="V2"></div>
+                <div class="field"><label>V3</label><input type="number" step="any" placeholder="V3" id="V3"></div>
+                <div class="field"><label>V4</label><input type="number" step="any" placeholder="V4" id="V4"></div>
+                <div class="field"><label>V5</label><input type="number" step="any" placeholder="V5" id="V5"></div>
+                <div class="field"><label>V6</label><input type="number" step="any" placeholder="V6" id="V6"></div>
+                <div class="field"><label>V7</label><input type="number" step="any" placeholder="V7" id="V7"></div>
+                <div class="field"><label>V8</label><input type="number" step="any" placeholder="V8" id="V8"></div>
+                <div class="field"><label>V9</label><input type="number" step="any" placeholder="V9" id="V9"></div>
+                <div class="field"><label>V10</label><input type="number" step="any" placeholder="V10" id="V10"></div>
+                <div class="field"><label>V11</label><input type="number" step="any" placeholder="V11" id="V11"></div>
+                <div class="field"><label>V12</label><input type="number" step="any" placeholder="V12" id="V12"></div>
+                <div class="field"><label>V13</label><input type="number" step="any" placeholder="V13" id="V13"></div>
+                <div class="field"><label>V14</label><input type="number" step="any" placeholder="V14" id="V14"></div>
+                <div class="field"><label>V15</label><input type="number" step="any" placeholder="V15" id="V15"></div>
+                <div class="field"><label>V16</label><input type="number" step="any" placeholder="V16" id="V16"></div>
+                <div class="field"><label>V17</label><input type="number" step="any" placeholder="V17" id="V17"></div>
+                <div class="field"><label>V18</label><input type="number" step="any" placeholder="V18" id="V18"></div>
+                <div class="field"><label>V19</label><input type="number" step="any" placeholder="V19" id="V19"></div>
+                <div class="field"><label>V20</label><input type="number" step="any" placeholder="V20" id="V20"></div>
+                <div class="field"><label>V21</label><input type="number" step="any" placeholder="V21" id="V21"></div>
+                <div class="field"><label>V22</label><input type="number" step="any" placeholder="V22" id="V22"></div>
+                <div class="field"><label>V23</label><input type="number" step="any" placeholder="V23" id="V23"></div>
+                <div class="field"><label>V24</label><input type="number" step="any" placeholder="V24" id="V24"></div>
+                <div class="field"><label>V25</label><input type="number" step="any" placeholder="V25" id="V25"></div>
+                <div class="field"><label>V26</label><input type="number" step="any" placeholder="V26" id="V26"></div>
+                <div class="field"><label>V27</label><input type="number" step="any" placeholder="V27" id="V27"></div>
+                <div class="field"><label>V28</label><input type="number" step="any" placeholder="V28" id="V28"></div>
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn">🔍 Check for Fraud</button>
+    </form>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    document.getElementById("fraudForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const resultDiv = document.getElementById("result");
+        resultDiv.style.display = "block";
+        resultDiv.className = "";
+        resultDiv.innerHTML = "⏳ Checking...";
+
+        let data = {
+            Time: parseFloat(document.getElementById("Time").value) || 0,
+            Amount: parseFloat(document.getElementById("Amount").value) || 0
+        };
+
+        for (let i = 1; i <= 28; i++) {
+            data["V" + i] = parseFloat(document.getElementById("V" + i).value) || 0;
+        }
+
+        try {
+            const response = await fetch("/predict", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (result.Fraud === 1) {
+                resultDiv.className = "fraud";
+                resultDiv.innerHTML = `🚨 FRAUD DETECTED <br> Probability: ${(result.Probability * 100).toFixed(2)}%`;
+            } else {
+                resultDiv.className = "safe";
+                resultDiv.innerHTML = `✅ Legit Transaction <br> Probability: ${(result.Probability * 100).toFixed(2)}%`;
+            }
+
+        } catch (error) {
+            resultDiv.className = "fraud";
+            resultDiv.innerHTML = "❌ Error connecting to server. Please try again.";
+        }
+    });
+</script>
+
+</body>
+</html>
