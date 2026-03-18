@@ -22,9 +22,8 @@ predictions_col = db.get_collection("predictions")
 users_col = db.get_collection("users")  # ← users collection
 
 
-# Path to frontend folder (one level up from backend)
-FRONTEND = os.path.join(os.path.dirname(__file__), '..', 'frontend')
-STATIC_DIR = os.path.join(os.path.dirname(__file__), '..', 'static')
+FRONTEND = os.path.join(os.path.dirname(__file__), 'frontend')
+STATIC_DIR = os.path.join(os.path.dirname(__file__), 'static')
 
 
 # ─── Serve static files ───────────────────────────────────────────────────────
