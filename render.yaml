@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: fraudshield
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+```
+
+## Step 2 — Add gunicorn to requirements.txt
+Open `backend/requirements.txt` and add this line:
+```
+gunicorn
